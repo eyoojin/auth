@@ -220,6 +220,8 @@ def login(request):
 
 # 로그아웃 기능 구현
 
+- 데이터베이스에서 session을 찾아서 지워줌
+
 ## 7. Logout - Delete
 ```python
 # urls.py
@@ -232,4 +234,21 @@ from django.contrib.auth import logout as auth_logout
 def logout(request):
     auth_logout(request)
     return redirect('accounts:login')
+```
+
+# 로그인/로그아웃
+
+## 8. 로그인 유무에 따른 nav 구조 변경
+```html
+<!-- base.html -->
+<nav class="nav">
+    <!-- is => True or False -->
+    {% if user.is_authenticated %}
+        <a href="" class="nav-link disabled">{{user}}</a>
+        <a href="{% url 'accounts:logout' %}" class="nav-link">logout</a>
+    {% else %}
+        <a href="{% url 'accounts:signup' %}" class="nav-link">signup</a>
+        <a href="{% url 'accounts:login' %}" class="nav-link">login</a>        
+    {% endif %}
+</nav>
 ```
