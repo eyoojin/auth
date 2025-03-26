@@ -24,15 +24,13 @@
 - settings.py
 
 ## 3. base.html
-- ../templates/
-- settins.py
 ```python
-# settings.py
+# auth/'settings.py'
 TEMPLATES = [{'DIRS': [ BASE_DIR / 'templates' ]}]
 ```
 - bootstrap 적용
 ```html
-<!-- base.html -->
+<!-- ../templates/'base.html' -->
 <div class="container">
     {% block body %}
     {% endblock %}
@@ -52,7 +50,7 @@ class User(AbstractUser):
 ```
 - Django는 원래 사용하던 User 모델이 있기 때문에 내가 새로 만든 것과 충돌이 일어날 수 있음 -> Django에게 내가 만든 모델로 사용하겠다고 말해줘야 함
 ```python
-# settings.py
+# auth/'settings.py'
 AUTH_USER_MODEL = 'accounts.User'
 ```
 - migration
@@ -189,7 +187,7 @@ def login(request):
 ```
 - user session 발급
 ```python
-# views.py
+# accounts/'views.py'
 from django.contrib.auth import login as auth_login
 # django가 이미 만들어둔 login함수가 우리 함수와 이름이 같기 때문에 다르게 설정
 
@@ -205,7 +203,7 @@ def login(request):
 ```
 - login 성공
 ```html
-<!-- base.html -->
+<!-- ../templates/'base.html' -->
 <nav class="nav">
     <!-- {{user}}: context에 담지 않아도 이미 가지고 있는 변수 -->
     <a href="" class="nav-link disabled">{{user}}</a>
@@ -221,11 +219,11 @@ def login(request):
 - 데이터베이스에서 session을 찾아서 지워줌
 ---
 ```python
-# urls.py
+# accounts/'urls.py'
 path('logout/', views.logout, name='logout')
 ```
 ```python
-# views.py
+# accounts/'views.py'
 from django.contrib.auth import logout as auth_logout
 
 def logout(request):
@@ -235,7 +233,7 @@ def logout(request):
 
 ## 8. 로그인 유무에 따른 nav 구조 변경
 ```html
-<!-- base.html -->
+<!-- ../templates/'base.html' -->
 <nav class="nav">
     <!-- is => True or False -->
     {% if user.is_authenticated %}
@@ -253,7 +251,7 @@ def logout(request):
 ## 9. startapp articles
 - settings.py
 
-## 10. Article modeling
+## 10. Article modeling/migration
 ```python
 # articles/'models.py'
 
@@ -268,4 +266,96 @@ user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 # 3. get_user_model
 from django.contrib.auth import get_user_model
 user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+```
+
+## 11. Article - Create
+```python
+# auth/'urls.py'
+path('articles/', include('articles.urls'))
+```
+```python
+# articles/'urls.py'
+from django.urls import path
+from . import views
+
+app_name = 'articles'
+
+urlpatterns = [path('', views.index, name='index')]
+```
+```python
+# articles/'views.py'
+from django.shortcuts import render
+
+def index(request):
+    return render(request, 'index.html')
+```
+```html
+<!-- articles/templates/'index.html' -->
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>index</h1>
+{% endblock %}
+```
+```html
+<!-- ../templates/'base.html' -->
+<a href="{% url 'articles:create' %}" class="nav-link">create</a>
+```
+```python
+# articles/'urls.py'
+path('create/', views.create, name='create')
+```
+```python
+# articles/'forms.py'
+from django.forms import ModelForm
+from .models import Article
+
+class ArticleForm(ModelForm):
+    class Meta():
+        model = Article
+        fields = '__all__'
+```
+```python
+# articles/'views.py'
+from .forms import ArticleForm
+
+def create(request):
+    if request.method == 'POST':
+        pass
+    else:
+        form = ArticleForm()
+    
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'create.html', context)
+```
+```html
+<!-- articles/templates/'create.html' -->
+<form action="" method="POST">
+    {% csrf_token%}
+    {{form}}
+    <input type="submit">
+</form>
+```
+```python
+# forms.py
+# fields or exclude
+# fields = '__all__'
+fields = ('title', 'content', )
+exclude = ('user', )
+```
+```python
+# views.py
+from django.shortcuts import redirect
+def create(request):
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            # user 정보를 직접 넣어줘야함
+            article = form.save(commit=False)
+            article.user = request.user
+            article.save()
+            return redirect('articles:index')
 ```
