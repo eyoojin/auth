@@ -38,7 +38,8 @@ TEMPLATES = [{'DIRS': [ BASE_DIR / 'templates' ]}]
     {% endblock %}
 </div>
 ```
-# 회원가입 기능 구현
+
+# 회원가입(Signup) 기능 구현
 
 ## 4. User modeling/migration
 ```python
@@ -56,7 +57,7 @@ AUTH_USER_MODEL = 'accounts.User'
 ```
 - migration
 
-## 5. User Create
+## 5. Signup - Create
 - 경로 설정
 ```python
 # auth/'urls.py'
@@ -115,6 +116,7 @@ def signup(request):
     </form>
 {% endblock %}
 ```
+- 회원가입 정보 저장
 ```python
 # views.py
 from django.shortcuts import redirect
@@ -138,3 +140,68 @@ def signup(request):
         - sha256: 현재 쓰는 암호화 함수
     - salt
         - 사람마다 다른 랜덤한 문자열을 추가로 붙임 -> 똑같은 비밀번호를 쓰더라도 다르게 저장됨
+
+# 로그인 기능 구현
+
+1. User가 ID와 PW를 server로 보냄
+2. ID/PW가 가지고 있는 데이터와 일치하는지 확인
+3. User Session(임의의 난수) 키 발급 -> **Create**
+4. Session을 cookies에 저장
+
+- 쿠키를 허용함: 브라우저의 일정 공간에 데이터를 저장하도록 허용함
+
+## 6. Login - Create
+- 경로 설정
+```python
+# urls.py
+path('login/', views.login, name='login')
+```
+- 함수 생성
+```python
+# forms.py
+from django.contrib.auth.forms import AuthenticationForm
+
+class CustomAuthenticationForm(AuthenticationForm):
+    pass
+```
+```python
+# views.py
+from .forms import CustomAuthenticationForm
+
+def login(request):
+    if request.method == 'POST':
+        pass
+    else:
+        form = CustomAuthenticationForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'login.html', context)
+```
+- 페이지 생성
+```html
+<!-- login.html -->
+<form action="" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit">
+</form>
+```
+- user session 발급
+```python
+# views.py
+from django.contrib.auth import login as auth_login
+# django가 이미 만들어둔 login함수가 우리 함수와 이름이 같기 때문에 다르게 설정
+
+def login(request):
+    if request.method == 'POST':
+        form = CustomAuthenticationForm(request, request.POST)
+        # request.POST: ID, PW 정보
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            # form.get_user(): 유저 데이터(ID, PW)
+            # login: 세션 발급해주는 함수
+            return redirect('articles:index')
+```
