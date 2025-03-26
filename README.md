@@ -385,7 +385,7 @@ def index(request):
 {% endfor %}
 ```
 
-## 13.
+## 13. login_required
 ```python
 # articles/'views.py'
 from django.contrib.auth.decorators import login_required
@@ -400,7 +400,8 @@ def create(request):
 def login(request):
     return redirect('articles:index')
 ```
-- ?next=
+
+## 14. next 인자 처리하기
 ```python
 def login(request):
     # /accounts/login/
