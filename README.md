@@ -43,7 +43,7 @@ TEMPLATES = [{'DIRS': [ BASE_DIR / 'templates' ]}]
 
 ## 4. User modeling/migration
 ```python
-# models.py
+# accounts/'models.py'
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
@@ -88,7 +88,7 @@ class CustomUserCreationForm(UserCreationForm):
         # password는 필수
 ```
 ```python
-# views.py
+# accounts/'views.py'
 from .forms import CustomUserCreationForm
 
 def signup(request):
@@ -118,7 +118,7 @@ def signup(request):
 ```
 - 회원가입 정보 저장
 ```python
-# views.py
+# accounts/'views.py'
 from django.shortcuts import redirect
 
 def signup(request):
@@ -151,19 +151,19 @@ def signup(request):
 ---
 - 경로 설정
 ```python
-# urls.py
+# accounts/'urls.py'
 path('login/', views.login, name='login')
 ```
 - 함수 생성
 ```python
-# forms.py
+# accounts/'forms.py'
 from django.contrib.auth.forms import AuthenticationForm
 
 class CustomAuthenticationForm(AuthenticationForm):
     pass
 ```
 ```python
-# views.py
+# accounts/'views.py'
 from .forms import CustomAuthenticationForm
 
 def login(request):
@@ -180,7 +180,7 @@ def login(request):
 ```
 - 페이지 생성
 ```html
-<!-- login.html -->
+<!-- accounts/templates/'login.html' -->
 <form action="" method="POST">
     {% csrf_token %}
     {{form}}
@@ -252,3 +252,20 @@ def logout(request):
 
 ## 9. startapp articles
 - settings.py
+
+## 10. Article modeling
+```python
+# articles/'models.py'
+
+# 1. 직접참조 -> 추천하지 않음
+from accounts.models import User
+user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+# 2. settings.py 변수 활용
+from django.conf import settings
+user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+# 3. get_user_model
+from django.contrib.auth import get_user_model
+user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+```
