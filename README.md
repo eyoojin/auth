@@ -340,15 +340,16 @@ def create(request):
 </form>
 ```
 ```python
-# forms.py
+# articles/'forms.py'
 # fields or exclude
 # fields = '__all__'
 fields = ('title', 'content', )
 exclude = ('user', )
 ```
 ```python
-# views.py
+# articles/'views.py'
 from django.shortcuts import redirect
+
 def create(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST)
@@ -358,4 +359,28 @@ def create(request):
             article.user = request.user
             article.save()
             return redirect('articles:index')
+```
+
+## 12. Article - Read
+```python
+# articles/'views.py'
+from .models import Article
+
+def index(request):
+    articles = Article.objects.all()
+
+    context = {
+        'articles': articles,
+    }
+
+    return render(request, 'index.html', context)
+```
+```html
+<!-- articles/templates/'index.html' -->
+{% for article in articles %}
+    <h3>{{article.title}}</h3>
+    <p>{{article.content}}</p>
+    <p>{{article.user}}</p>
+    <hr>
+{% endfor %}
 ```
