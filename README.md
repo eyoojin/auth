@@ -38,8 +38,9 @@ TEMPLATES = [{'DIRS': [ BASE_DIR / 'templates' ]}]
     {% endblock %}
 </div>
 ```
+# 회원가입 기능 구현
 
-## 4. User modeling/ migrate
+## 4. User modeling/migration
 ```python
 # models.py
 from django.contrib.auth.models import AbstractUser
@@ -53,4 +54,87 @@ class User(AbstractUser):
 # settings.py
 AUTH_USER_MODEL = 'accounts.User'
 ```
-- migrations
+- migration
+
+## 5. User Create
+- 경로 설정
+```python
+# auth/'urls.py'
+from django.urls import path, include
+
+path('accounts/', include('accounts.urls'))
+```
+```python
+# accounts/'urls.py'
+from django.urls import path, include
+from . import views
+
+app_name ='accounts'
+
+urlpatterns = [path('signup/', views.signup, name='signup')]
+```
+- 함수 생성
+```python
+# accounts/'forms.py'
+from .models import User
+from django.contrib.auth.forms import UserCreationForm
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta():
+        model = User
+        # fields = '__all__'
+        fields = ('username', )
+        # password는 필수
+```
+```python
+# views.py
+from .forms import CustomUserCreationForm
+
+def signup(request):
+    if request.method == 'POST':
+        pass
+    else:
+        form = CustomUserCreationForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'signup.html', context)
+```
+- 페이지 생성
+```html
+<!-- accounts/templates/'signup.html' -->
+{% extends 'base.html' %}
+
+{% block body %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{form}}
+        <input type="submit">
+    </form>
+{% endblock %}
+```
+```python
+# views.py
+from django.shortcuts import redirect
+
+def signup(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts:login')
+```
+- validation check (유효성 검사)
+    - `if form.is_valid():`에서 처리
+    - 비밀번호가 너무 짧거나 흔하거나 등등
+
+- 암호화
+    - 평문을 난수로 바꿈
+    - hash 함수
+        - 어떠한 계산의 결과
+        - sha1: 결과를 보고 원본을 유추 가능
+        - sha256: 현재 쓰는 암호화 함수
+    - salt
+        - 사람마다 다른 랜덤한 문자열을 추가로 붙임 -> 똑같은 비밀번호를 쓰더라도 다르게 저장됨
