@@ -384,3 +384,35 @@ def index(request):
     <hr>
 {% endfor %}
 ```
+
+## 13.
+```python
+# articles/'views.py'
+from django.contrib.auth.decorators import login_required
+
+# decorator: 아래에 있는 함수를 실행하기 전에 위의 함수를 먼저 실행해주세요
+@login_required # 로그인을 해야 접근 가능
+def create(request):
+```
+- 흐름 수정
+```python
+# accounts/'views.py'
+def login(request):
+    return redirect('articles:index')
+```
+- ?next=
+```python
+def login(request):
+    # /accounts/login/
+    # /accounts/login/?next=/articles/create/
+    next_url = request.GET.get('next')
+
+    # next가 없을 때 => None or 'articles:index'
+    # next가 있을 때 => '/articles/create/' or 'articles:index'
+    return redirect(next_url or 'articles:index')
+```
+- or
+    - 둘 중에 하나라도 1이면 1
+    - 단축평가
+        - 앞 True => 앞 반환
+        - 앞 False => 뒤 반환
