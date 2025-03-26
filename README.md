@@ -39,7 +39,7 @@ TEMPLATES = [{'DIRS': [ BASE_DIR / 'templates' ]}]
 </div>
 ```
 
-# 회원가입(Signup) 기능 구현
+# 회원가입/로그인/로그아웃
 
 ## 4. User modeling/migration
 ```python
@@ -131,7 +131,7 @@ def signup(request):
 - validation check (유효성 검사)
     - `if form.is_valid():`에서 처리
     - 비밀번호가 너무 짧거나 흔하거나 등등
-
+---
 - 암호화
     - 평문을 난수로 바꿈
     - hash 함수
@@ -141,16 +141,14 @@ def signup(request):
     - salt
         - 사람마다 다른 랜덤한 문자열을 추가로 붙임 -> 똑같은 비밀번호를 쓰더라도 다르게 저장됨
 
-# 로그인 기능 구현
-
+## 6. Login - Create
 1. User가 ID와 PW를 server로 보냄
 2. ID/PW가 가지고 있는 데이터와 일치하는지 확인
 3. User Session(임의의 난수) 키 발급 -> **Create**
 4. Session을 cookies에 저장
 
 - 쿠키를 허용함: 브라우저의 일정 공간에 데이터를 저장하도록 허용함
-
-## 6. Login - Create
+---
 - 경로 설정
 ```python
 # urls.py
@@ -218,11 +216,10 @@ def login(request):
 </nav>
 ```
 
-# 로그아웃 기능 구현
+## 7. Logout - Delete
 
 - 데이터베이스에서 session을 찾아서 지워줌
-
-## 7. Logout - Delete
+---
 ```python
 # urls.py
 path('logout/', views.logout, name='logout')
@@ -235,8 +232,6 @@ def logout(request):
     auth_logout(request)
     return redirect('accounts:login')
 ```
-
-# 로그인/로그아웃
 
 ## 8. 로그인 유무에 따른 nav 구조 변경
 ```html
@@ -252,3 +247,8 @@ def logout(request):
     {% endif %}
 </nav>
 ```
+
+# 게시물 생성
+
+## 9. startapp articles
+- settings.py
