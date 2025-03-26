@@ -198,10 +198,38 @@ from django.contrib.auth import login as auth_login
 def login(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, request.POST)
-        # request.POST: ID, PW 정보
+        # request.POST: ID, PW 정보가 담긴
         if form.is_valid():
             auth_login(request, form.get_user())
-            # form.get_user(): 유저 데이터(ID, PW)
-            # login: 세션 발급해주는 함수
+            # form.get_user(): 유저 데이터(ID)
+            # auth_login: 세션 발급해주는 함수
             return redirect('articles:index')
+```
+- login 성공
+```html
+<!-- base.html -->
+<nav class="nav">
+    <!-- {{user}}: context에 담지 않아도 이미 가지고 있는 변수 -->
+    <a href="" class="nav-link disabled">{{user}}</a>
+    <a href="{% url 'accounts:signup' %}" class="nav-link">signup</a>
+    <a href="{% url 'accounts:login' %}" class="nav-link">login</a>
+    <a href="{% url 'accounts:logout' %}" class="nav-link">logout</a>
+
+</nav>
+```
+
+# 로그아웃 기능 구현
+
+## 7. Logout - Delete
+```python
+# urls.py
+path('logout/', views.logout, name='logout')
+```
+```python
+# views.py
+from django.contrib.auth import logout as auth_logout
+
+def logout(request):
+    auth_logout(request)
+    return redirect('accounts:login')
 ```
