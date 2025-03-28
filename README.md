@@ -487,6 +487,7 @@ from .forms import CommentForm
 
 def detail(request, id):
     form = CommentForm()
+    # 댓글 보여주는 기능(get요청)
 
     context = {
         'form': form,
@@ -526,6 +527,8 @@ def comment_create(request, article_id):
     # else:
     #     pass
     # 댓글 작성에는 get요청이 들어오지 않기 때문에 if문 안쪽의 코드만 있으면 됨
+    # 댓글 작성칸을 보여주는 건 detail 함수에서 함
+
     
     form = CommentForm(request.POST)
     if form.is_valid():
@@ -622,5 +625,55 @@ def delete(request, id):
     if request.user == article.user:
         article.delete()
     
+    return redirect('articles:index')
+```
+
+## 21. Article Update
+```html
+<!-- detail.html -->
+<a href="{% url 'articles:update' article.id %}">update</a>
+```
+```python
+# urls.py
+path('<int:id>/update/', views.update, name='update')
+```
+- 기존 정보 출력
+```python
+# views.py
+@login_required
+def update(request, id):
+    article = Article.objects.get(id=id)
+    if request.method == 'POST':
+        pass 
+    else:
+        form = ArticleForm(instance=article)
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'update.html', context)
+```
+```html
+<!-- update.html -->
+ <form action="" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit">
+</form>
+```
+- 저장
+```python
+# views.py
+if request.method == 'POST':
+    form = ArticleForm(request.POST, instance=article)
+    if form.is_valid():
+        form.save()
+        return redirect('articles:detail', id=id)
+```
+- 다른 사람이 작성한 게시글을 수정하지 못하도록 코드 수정
+```python
+# views.py
+if request.user != article.user:
+# 현재 로그인한 사람 != 게시물을 작성한 사람
     return redirect('articles:index')
 ```

@@ -52,12 +52,34 @@ def delete(request, id):
     return redirect('articles:index')
 
 @login_required
+def update(request, id):
+    article = Article.objects.get(id=id)
+
+    if request.user != article.user:
+    # 현재 로그인한 사람 != 게시물을 작성한 사람
+        return redirect('articles:index')
+        
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            return redirect('articles:detail', id=id)
+    else:
+        form = ArticleForm(instance=article)
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'update.html', context)
+
+@login_required
 def comment_create(request, article_id):
     # if request.method == 'POST':
     #     pass
     # else:
     #     pass
     # 댓글 작성에는 get요청이 들어오지 않기 때문에 if문 안쪽의 코드만 있으면 됨
+    # 댓글 작성칸을 보여주는 건 detail 함수에서 함
     
     form = CommentForm(request.POST)
     if form.is_valid():
