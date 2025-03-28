@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from .models import User
 
 # Create your views here.
 
@@ -46,3 +47,14 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect('accounts:login')
+
+def profile(request, username):
+    user_profile = User.objects.get(username=username)
+    # user와 충돌이 일어날 수 있으므로 이름 변경
+
+    context = {
+        'user_profile': user_profile,
+        # 'user': request.user # 장고가 우리 모르게 넣어둔 것
+    }
+
+    return render(request, 'profile.html', context)

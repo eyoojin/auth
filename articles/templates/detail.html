@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap5 %}
 
 {% block body %}
     <h1>{{article.title}}</h1>
@@ -13,8 +14,8 @@
     <hr>
     <form action="{% url 'articles:comment_create' article.id %}" method="POST">
         {% csrf_token %}
-        {{form}}
-        <input type="submit">
+        {% bootstrap_form form %}
+        <input type="submit" class="btn btn-primary">
     </form>
 
     <hr>

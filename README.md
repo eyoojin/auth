@@ -679,6 +679,8 @@ if request.user != article.user:
 ```
 
 # bootstrap 편하게 쓰기
+
+## 22. bootstrap v5
 [부트스트랩 라이브러리](https://django-bootstrap-v5.readthedocs.io/en/latest/templatetags.html#bootstrap-form)
 
 ```shell
@@ -695,4 +697,13 @@ INSTALLED_APPS = ['bootstrap5']
 {% load bootstrap5 %}
 
 {% bootstrap_form form %}
+```
+
+# 프로필 기능
+
+## 23. profile
+
+```html
+<!-- base.html -->
+<a href="{% url 'accounts:profile' user.username %}" class="nav-link">{{user}}</a>
 ```

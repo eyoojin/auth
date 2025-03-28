@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>{{user_profile.username}}</h1>
+
+    {% for article in user_profile.article_set.all %}
+        <li>{{article.title}}</li>
+    {% endfor %}
+{% endblock %}
