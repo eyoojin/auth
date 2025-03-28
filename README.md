@@ -436,16 +436,16 @@ class Comment(models.Model):
 - 댓글 구현 전에 보여주는 페이지 먼저 만듦
 
 ```html
-<!-- index.html -->
+<!-- articles/templates/'index.html' -->
 <a href="{% url 'articles:detail' article.id %}">detail</a>
 
 ```
 ```python
-# urls.py
+# articles/'urls.py'
 path('<int:id>/', views.detail, name='detail')
 ```
 ```python
-# views.py
+# articles/templates/'views.py'
 def detail(request, id):
     article = Article.objects.get(id=id)
 
@@ -456,7 +456,7 @@ def detail(request, id):
     return render(request, 'detail.html', context)
 ```
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 {% extends 'base.html' %}
 
 {% block body %}
@@ -473,7 +473,7 @@ def detail(request, id):
 - CommentForm 인스턴스화
 
 ```python
-# forms.py
+# articles/'forms.py'
 from .models import Comment
 
 class CommentForm(ModelForm):
@@ -482,7 +482,7 @@ class CommentForm(ModelForm):
         fields = '__all__'
 ```
 ```python
-# views.py
+# articles/'views.py'
 from .forms import CommentForm
 
 def detail(request, id):
@@ -494,7 +494,7 @@ def detail(request, id):
     }
 ```
 ```html
-<!-- detial.html -->
+<!-- articles/templates/'detial.html' -->
 <hr>
 <form action="" method="POST">
     {% csrf_token %}
@@ -504,22 +504,22 @@ def detail(request, id):
 ```
 - content만 보이도록 수정
 ```python
-# forms.py
+# articles/'forms.py'
 fields = ('content', )
 ```
 - action 설정
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 <form action="{% url 'articles:comment_create' article.id %}">
 ```
 - url 설정
 ```python
-# urls.py
+# articles/'urls.py'
 path('<int:article_id>/comments/create/', views.comment_create, name='comment_create')
 ```
 - 함수 생성
 ```python
-# views.py
+# articles/'views.py'
 @login_required
 def comment_create(request, article_id):
     # if request.method == 'POST':
@@ -552,7 +552,7 @@ def comment_create(request, article_id):
 ## 18. Comment Read
 
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 
 {% for comment in article.comment_set.all %}
 <!-- all은 함수지만 html에서는 () 쓰지 않음 -->
@@ -564,17 +564,17 @@ def comment_create(request, article_id):
 ## 19. Comment Delete
 - delete 버튼
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 <a href="{% url 'articles:comment_delete' article.id comment.id %}">delete</a>
 ```
 - url
 ```python
-# urls.py
+# articles/'urls.py'
 path('<int:article_id>/comments/<int:comment_id>/delete', views.comment_delete, name='comment_delete')
 ```
 - def
 ```python
-# views.py
+# artilces/'views.py'
 from .models import Comment
 
 def comment_delete(request, article_id, comment_id):
@@ -585,14 +585,14 @@ def comment_delete(request, article_id, comment_id):
 ```
 - 문제점: 남이 작성한 댓글까지 삭제할 수 있음 -> 댓글작성자만 댓글삭제 버튼을 볼 수 있게 변경
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 {% if user == comment.user %}
     <a href="{% url 'articles:comment_delete' article.id comment.id %}">🐳</a>
 {% endif %}
 ```
 - 로그인한 사람만 댓글을 지울 수 있도록 변경
 ```python
-# views.py
+# articles/'views.py'
 @login_required
 def comment_delete(request, article_id, comment_id):
     comment = Comment.objects.get(id=comment_id)
@@ -608,17 +608,17 @@ def comment_delete(request, article_id, comment_id):
 ## 20. Article Delete
 - 로그인한 사용자와 게시글 작성자가 같을 때만 삭제 버튼을 볼 수 있고, 지울 수 있는 기능 추가
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 {% if user == article.user %}
     <a href="{% url 'articles:delete' article.id %}">delete</a>
 {% endif %}
 ```
 ```python
-# urls.py
+# articles/'urls.py'
 path('<int:id>/delete/', views.delete, name='delete')
 ```
 ```python
-# views.py
+# articles/'views.py'
 @login_required
 def delete(request, id):
     article = Article.objects.get(id=id)
@@ -630,16 +630,16 @@ def delete(request, id):
 
 ## 21. Article Update
 ```html
-<!-- detail.html -->
+<!-- articles/templates/'detail.html' -->
 <a href="{% url 'articles:update' article.id %}">update</a>
 ```
 ```python
-# urls.py
+# articles/'urls.py'
 path('<int:id>/update/', views.update, name='update')
 ```
 - 기존 정보 출력
 ```python
-# views.py
+# articles/'views.py'
 @login_required
 def update(request, id):
     article = Article.objects.get(id=id)
@@ -654,7 +654,7 @@ def update(request, id):
     return render(request, 'update.html', context)
 ```
 ```html
-<!-- update.html -->
+<!-- articles/templates/'update.html' -->
  <form action="" method="POST">
     {% csrf_token %}
     {{form}}
@@ -663,7 +663,7 @@ def update(request, id):
 ```
 - 저장
 ```python
-# views.py
+# articles/'iews.py'
 if request.method == 'POST':
     form = ArticleForm(request.POST, instance=article)
     if form.is_valid():
@@ -672,7 +672,7 @@ if request.method == 'POST':
 ```
 - 다른 사람이 작성한 게시글을 수정하지 못하도록 코드 수정
 ```python
-# views.py
+# articles/'views.py'
 if request.user != article.user:
 # 현재 로그인한 사람 != 게시물을 작성한 사람
     return redirect('articles:index')
@@ -681,15 +681,17 @@ if request.user != article.user:
 # bootstrap 편하게 쓰기
 
 ## 22. bootstrap v5
-[부트스트랩 라이브러리](https://django-bootstrap-v5.readthedocs.io/en/latest/templatetags.html#bootstrap-form)
+- [부트스트랩 라이브러리 v5](https://django-bootstrap-v5.readthedocs.io/en/latest/templatetags.html)
+- [부트스트랩 라이브러리 5](https://django-bootstrap5.readthedocs.io/en/latest/templatetags.html)
 
 ```shell
 pip install django-bootstrap-v5
+pip install django-bootstrap
 ```
 - 장고 4버전에서 호환이 되기 때문에 우리가 깔았던 5버전을 삭제하고 4버전을 재다운함
 
 ```python
-# settings.py
+# auth/'settings.py'
 INSTALLED_APPS = ['bootstrap5']
 ```
 ```html
@@ -701,9 +703,39 @@ INSTALLED_APPS = ['bootstrap5']
 
 # 프로필 기능
 
-## 23. profile
+## 23. user profile
 
 ```html
-<!-- base.html -->
+<!-- ../templates/'base.html' -->
 <a href="{% url 'accounts:profile' user.username %}" class="nav-link">{{user}}</a>
+```
+```python
+# accounts/'urls.py'
+path('<username>/', views.profile, name='profile')
+
+```
+```python
+# accounts/'views.py'
+def profile(request, username):
+    user_profile = User.objects.get(username=username)
+    # user와 충돌이 일어날 수 있으므로 이름 변경
+
+    context = {
+        'user_profile': user_profile,
+        # 'user': request.user # 장고가 우리 모르게 넣어둔 것
+    }
+
+    return render(request, 'profile.html', context)
+```
+```html
+<!-- accounts/'profile.html' -->
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>{{user_profile.username}}</h1>
+
+    {% for article in user_profile.article_set.all %}
+        <li>{{article.title}}</li>
+    {% endfor %}
+{% endblock %}
 ```
