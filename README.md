@@ -9,9 +9,9 @@
         - 데이터끼리 어떤 상관관계를 가지는지
 
 - 오늘 프로젝트의 구조
-    - User -< Post
+    - User -< Article
     - User -< Comment
-    - Post -< Comment
+    - Article -< Comment
 
 ## 0. .gitignore 설정
 - 가상환경 생성/ 활성화
@@ -417,3 +417,16 @@ def login(request):
     - 단축평가
         - 앞 True => 앞 반환
         - 앞 False => 뒤 반환
+
+# 댓글 기능
+
+## 15. Comment modeling
+
+```python
+# articles/'models.py'
+class Comment(models.Model):
+    content = models.TextField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+```
+- migration
