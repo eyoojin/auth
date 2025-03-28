@@ -545,3 +545,15 @@ def comment_create(request, article_id):
 
         return redirect('articles:detail', id=article_id)
 ```
+
+## 18. Comment Read
+
+```html
+<!-- detail.html -->
+
+{% for comment in article.comment_set.all %}
+<!-- all은 함수지만 html에서는 () 쓰지 않음 -->
+    <li>{{comment.user.username}} : {{comment.content}}</li>
+    <!-- 원래 username을 적어야 하는데 user에서 편의성 기능으로 id를 출력해줌 -->
+{% endfor %}
+```
