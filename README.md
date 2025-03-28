@@ -677,3 +677,22 @@ if request.user != article.user:
 # 현재 로그인한 사람 != 게시물을 작성한 사람
     return redirect('articles:index')
 ```
+
+# bootstrap 편하게 쓰기
+[부트스트랩 라이브러리](https://django-bootstrap-v5.readthedocs.io/en/latest/templatetags.html#bootstrap-form)
+
+```shell
+pip install django-bootstrap-v5
+```
+- 장고 4버전에서 호환이 되기 때문에 우리가 깔았던 5버전을 삭제하고 4버전을 재다운함
+
+```python
+# settings.py
+INSTALLED_APPS = ['bootstrap5']
+```
+```html
+<!-- extends 아래에 써야함 -->
+{% load bootstrap5 %}
+
+{% bootstrap_form form %}
+```
