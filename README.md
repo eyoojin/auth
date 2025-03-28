@@ -420,7 +420,7 @@ def login(request):
 
 # 댓글 기능
 
-## 15. Comment modeling
+## 15. Comment modeling/migration
 
 ```python
 # articles/'models.py'
