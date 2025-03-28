@@ -68,3 +68,11 @@ def comment_create(request, article_id):
         comment.save()
 
         return redirect('articles:detail', id=article_id)
+
+@login_required
+def comment_delete(request, article_id, comment_id):
+    comment = Comment.objects.get(id=comment_id)
+    if request.user == comment.user:
+        comment.delete()
+
+    return redirect('articles:detail', id=article_id)

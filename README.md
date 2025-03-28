@@ -557,3 +557,45 @@ def comment_create(request, article_id):
     <!-- 원래 username을 적어야 하는데 user에서 편의성 기능으로 id를 출력해줌 -->
 {% endfor %}
 ```
+
+## 19. Comment Delete
+- delete 버튼
+```html
+<!-- detail.html -->
+<a href="{% url 'articles:comment_delete' article.id comment.id %}">delete</a>
+```
+- url
+```python
+# urls.py
+path('<int:article_id>/comments/<int:comment_id>/delete', views.comment_delete, name='comment_delete')
+```
+- def
+```python
+# views.py
+from .models import Comment
+
+def comment_delete(request, article_id, comment_id):
+    comment = Comment.objects.get(id=comment_id)
+    comment.delete()
+
+    return redirect('articles:detail', id=article_id)
+```
+- 문제점: 남이 작성한 댓글까지 삭제할 수 있음 -> 댓글작성자만 댓글삭제 버튼을 볼 수 있게 변경
+```html
+<!-- detail.html -->
+{% if user == comment.user %}
+    <a href="{% url 'articles:comment_delete' article.id comment.id %}">🐳</a>
+{% endif %}
+```
+- 로그인한 사람만 댓글을 지울 수 있도록 변경
+```python
+# views.py
+@login_required
+def comment_delete(request, article_id, comment_id):
+    comment = Comment.objects.get(id=comment_id)
+    if request.user == comment.user:
+        comment.delete()
+
+    return redirect('articles:detail', id=article_id)
+    # if문을 통과하지 못하면 바로 return으로 이동
+```
