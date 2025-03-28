@@ -430,3 +430,118 @@ class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
 ```
 - migration
+
+## 16. Article Read 1
+
+- 댓글 구현 전에 보여주는 페이지 먼저 만듦
+
+```html
+<!-- index.html -->
+<a href="{% url 'articles:detail' article.id %}">detail</a>
+
+```
+```python
+# urls.py
+path('<int:id>/', views.detail, name='detail')
+```
+```python
+# views.py
+def detail(request, id):
+    article = Article.objects.get(id=id)
+
+    context = {
+        'article': article,
+    }
+
+    return render(request, 'detail.html', context)
+```
+```html
+<!-- detail.html -->
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1>{{article.title}}</h1>
+    <p>{{article.content}}</p>
+    <p>{{article.user}}</p>
+{% endblock %}
+```
+
+## 17. Comment Create
+
+- CommentForm 정의
+- CommentForm 불러오기
+- CommentForm 인스턴스화
+
+```python
+# forms.py
+from .models import Comment
+
+class CommentForm(ModelForm):
+    class Meta():
+        model = Comment
+        fields = '__all__'
+```
+```python
+# views.py
+from .forms import CommentForm
+
+def detail(request, id):
+    form = CommentForm()
+
+    context = {
+        'form': form,
+    }
+```
+```html
+<!-- detial.html -->
+<hr>
+<form action="" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit">
+</form>
+```
+- content만 보이도록 수정
+```python
+# forms.py
+fields = ('content', )
+```
+- action 설정
+```html
+<!-- detail.html -->
+<form action="{% url 'articles:comment_create' article.id %}">
+```
+- url 설정
+```python
+# urls.py
+path('<int:article_id>/comments/create/', views.comment_create, name='comment_create')
+```
+- 함수 생성
+```python
+# views.py
+@login_required
+def comment_create(request, article_id):
+    # if request.method == 'POST':
+    #     pass
+    # else:
+    #     pass
+    # 댓글 작성에는 get요청이 들어오지 않기 때문에 if문 안쪽의 코드만 있으면 됨
+    
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+
+        # 객체를 저장하는 경우
+        comment.user = request.user # 유저 정보 = 현재 로그인한 사람
+        article = Article.objects.get(id=article_id) # 게시물 정보 = 현재 게시글
+        comment.article = article
+
+        # id 값을 저장하는 경우
+        # DB에 저장되는 숫자를 가져옴
+        comment.user_id = request.user.id 
+        comment.article_id = article_id
+
+        comment.save()
+
+        return redirect('articles:detail', id=article_id)
+```
