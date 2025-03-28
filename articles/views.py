@@ -44,6 +44,14 @@ def detail(request, id):
     return render(request, 'detail.html', context)
 
 @login_required
+def delete(request, id):
+    article = Article.objects.get(id=id)
+    if request.user == article.user:
+        article.delete()
+    
+    return redirect('articles:index')
+
+@login_required
 def comment_create(request, article_id):
     # if request.method == 'POST':
     #     pass

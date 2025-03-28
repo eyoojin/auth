@@ -5,6 +5,11 @@
     <p>{{article.content}}</p>
     <p>{{article.user}}</p>
 
+    {% if user == article.user %}
+        <!-- <a href="{% url 'articles:update' article.id %}">⭐</a> -->
+        <a href="{% url 'articles:delete' article.id %}">🌙</a>
+    {% endif %}
+
     <hr>
     <form action="{% url 'articles:comment_create' article.id %}" method="POST">
         {% csrf_token %}

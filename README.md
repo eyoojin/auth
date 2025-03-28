@@ -599,3 +599,28 @@ def comment_delete(request, article_id, comment_id):
     return redirect('articles:detail', id=article_id)
     # if문을 통과하지 못하면 바로 return으로 이동
 ```
+
+# 게시물 기능
+
+## 20. Article Delete
+- 로그인한 사용자와 게시글 작성자가 같을 때만 삭제 버튼을 볼 수 있고, 지울 수 있는 기능 추가
+```html
+<!-- detail.html -->
+{% if user == article.user %}
+    <a href="{% url 'articles:delete' article.id %}">delete</a>
+{% endif %}
+```
+```python
+# urls.py
+path('<int:id>/delete/', views.delete, name='delete')
+```
+```python
+# views.py
+@login_required
+def delete(request, id):
+    article = Article.objects.get(id=id)
+    if request.user == article.user:
+        article.delete()
+    
+    return redirect('articles:index')
+```
